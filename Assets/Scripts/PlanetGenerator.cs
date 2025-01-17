@@ -110,13 +110,11 @@ public class PlanetGenerator : MonoBehaviour
         noise.SetFractalLacunarity(lacunarity);
         noise.SetFractalGain(persistence);
 
-        // Generate cube sphere
         CreateCubeSphere();
     }
 
     void CreateCubeSphere()
     {
-        // Define directions for the 6 cube faces
         Vector3[] directions = {
             Vector3.up,
             Vector3.down,
@@ -141,19 +139,6 @@ public class PlanetGenerator : MonoBehaviour
 						var mesh = new Mesh();
                         mesh.name = lodLevel.ToString();
                         faceMeshRenderer.material = planetMaterial;
-                        /*if (lodLevel == 1)
-                        {
-							face.GetComponent<MeshRenderer>().material.color = Color.red;
-                        }
-                        if (lodLevel == 2)
-                        {
-							face.GetComponent<MeshRenderer>().material.color = Color.green;
-                        }
-                        if (lodLevel == 3)
-                        {
-							face.GetComponent<MeshRenderer>().material.color = Color.blue;
-                        }*/
-                        //face.GetComponent<MeshRenderer>().enabled = false;
 
 						ConstructFace(dir, (maxResolution * lodLevel) / (int)(Math.Pow(2, lodLevel)), maxResolution * lodLevel, x, y, mesh);
 
@@ -209,19 +194,16 @@ public class PlanetGenerator : MonoBehaviour
 
     void ConstructFace(Vector3 localUp, int resolution, int dirResolution, int offsetX, int offsetY, Mesh mesh)
     {
-        // Initialize lists for vertices and triangles
         var vertices = new System.Collections.Generic.List<Vector3>();
         var triangles = new System.Collections.Generic.List<int>();
         var uvs = new System.Collections.Generic.List<Vector2>();
 
-        // Get the axes for the face
         Vector3 axisA = new Vector3(localUp.y, localUp.z, localUp.x);
         Vector3 axisB = Vector3.Cross(localUp, axisA);
 
         int faceResolution = resolution + 1;
         int vertStartIndex = vertices.Count;
 
-        // Create vertices for the face
         for (int y = 0; y < faceResolution; y++)
         {
             for (int x = 0; x < faceResolution; x++)
@@ -236,14 +218,12 @@ public class PlanetGenerator : MonoBehaviour
 
                 Vector3 pointOnUnitSphere = pointOnUnitCube.normalized;
 
-                // Apply noise for heightmap
                 float elevation = CalculateNoise(pointOnUnitSphere);
 
                 vertices.Add(pointOnUnitSphere * radius * (1 + elevation * heightMultiplier));
             }
         }
 
-        // Create triangles for the face
         for (int y = 0; y < resolution; y++)
         {
             for (int x = 0; x < resolution; x++)
@@ -276,47 +256,4 @@ public class PlanetGenerator : MonoBehaviour
 
         return normalizedNoiseValue;
     }
-
-    /*float CalculateNoise(Vector3 pointOnUnitSphere)
-    {
-        // Initialize noise parameters
-        float noiseValue = 0;
-        float frequency = noiseScale;
-        float amplitude = 1;
-        float maxPossibleHeight = 0;
-
-        // Seed the noise
-        System.Random prng = new System.Random(seed);
-        Vector3[] octaveOffsets = new Vector3[octaves];
-        for (int i = 0; i < octaves; i++)
-        {
-            float offsetX = prng.Next(-100000, 100000);
-            float offsetY = prng.Next(-100000, 100000);
-            float offsetZ = prng.Next(-100000, 100000);
-            octaveOffsets[i] = new Vector3(offsetX, offsetY, offsetZ);
-
-            maxPossibleHeight += amplitude;
-            amplitude *= persistence;
-        }
-
-        amplitude = 1;
-
-        // Sum octaves
-        for (int i = 0; i < octaves; i++)
-        {
-            Vector3 samplePoint = pointOnUnitSphere * frequency + octaveOffsets[i];
-
-            // Use Perlin noise
-            float perlinValue = Mathf.PerlinNoise(samplePoint.x, samplePoint.y);
-            noiseValue += perlinValue * amplitude;
-
-            frequency *= lacunarity;
-            amplitude *= persistence;
-        }
-
-        // Normalize
-        noiseValue = noiseValue / maxPossibleHeight;
-
-        return noiseValue;
-    }*/
 }
