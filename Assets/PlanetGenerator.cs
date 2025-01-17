@@ -24,20 +24,14 @@ public class PlanetGenerator : MonoBehaviour
     public int octaves = 4;
     public float persistence = 0.5f;
     public float lacunarity = 2f;
+    public FastNoiseLite.NoiseType noiseType = FastNoiseLite.NoiseType.OpenSimplex2;
+    public FastNoiseLite.FractalType fractalType = FastNoiseLite.FractalType.Ridged;
 
     private FastNoiseLite noise;
     private List<GameObject> planetFaces;
 
     void Start()
     {
-        noise = new FastNoiseLite(seed);
-        noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
-        noise.SetFrequency(noiseScale);
-        noise.SetFractalType(FastNoiseLite.FractalType.Ridged);
-        noise.SetFractalOctaves(octaves);
-        noise.SetFractalLacunarity(lacunarity);
-        noise.SetFractalGain(persistence);
-
         planetFaces = new List<GameObject>();
         GeneratePlanet();
     }
@@ -99,6 +93,23 @@ public class PlanetGenerator : MonoBehaviour
 
 	public void GeneratePlanet()
     {
+        if (planetFaces.Count > 0)
+        {
+            foreach (var child in planetFaces)
+            {
+                Destroy(child);
+            }
+            planetFaces = new List<GameObject>();
+        }
+
+        noise = new FastNoiseLite(seed);
+        noise.SetNoiseType(noiseType);
+        noise.SetFrequency(noiseScale);
+        noise.SetFractalType(fractalType);
+        noise.SetFractalOctaves(octaves);
+        noise.SetFractalLacunarity(lacunarity);
+        noise.SetFractalGain(persistence);
+
         // Generate cube sphere
         CreateCubeSphere();
     }
@@ -183,6 +194,12 @@ public class PlanetGenerator : MonoBehaviour
             if (faceData.Length == 3)
             {
                 Debug.Log("Malformed face data found. Face ID " + i.ToString() + " - " + meshFilter.sharedMesh.name);
+                if (lookupFix[Int32.Parse(faceData[1])] == faceData.Length)
+                {
+                    meshFilter.sharedMesh.name = faceData[0] + ":" + faceData[1];
+					Debug.Log("Fixed: " + meshFilter.sharedMesh.name);
+                    continue;
+                }
                 meshFilter.sharedMesh.name = faceData[0] + ":" + faceData[lookupFix[Int32.Parse(faceData[1])]];
                 Debug.Log("Fixed: " + meshFilter.sharedMesh.name);
                 lookupFix[Int32.Parse(faceData[1])]++;

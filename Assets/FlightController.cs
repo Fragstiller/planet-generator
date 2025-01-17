@@ -15,15 +15,28 @@ public class FlightController : MonoBehaviour
 
 	void Start()
 	{
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
 	    rb = GetComponent<Rigidbody>();
 	}
 
 	void Update()
     {
-        HandleMovement();
-        HandleRotation();
+        if (Input.GetKey(KeyCode.Mouse1))
+        {
+			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = false;
+        }
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+			Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+			HandleMovement();
+			HandleRotation();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        }
     }
 
 	void OnCollisionEnter(Collision collision)
